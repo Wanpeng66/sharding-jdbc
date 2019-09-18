@@ -1,0 +1,50 @@
+sharding:
+  jdbc:
+    datasource:
+      names: db01,db02,db03
+      db01:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://182.61.105.104:3307/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+      db02:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://182.61.105.104:3308/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+      db03:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://182.61.105.104:3309/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+    config:
+      sharding:
+        master-slave-rules:
+          m1s2:
+            #load-balance-algorithm-type: round_robin  #\u8F6E\u8BE2\u7684\u8D1F\u8F7D\u5747\u8861\u65B9\u5F0F
+            master-data-source-name: db01
+            slave-data-source-names: db02,db03
+        tables:
+          user:
+            actual-data-nodes: m1s2.user_$->{0..3}
+            table-strategy:
+              standard:
+                sharding-column: id
+                precise-algorithm-class-name: com.wp.fb.MyPreciseShardingAlgorithm
+
+      props:
+        sql:
+          show: true  #\u6253\u5370sql
+
+
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+

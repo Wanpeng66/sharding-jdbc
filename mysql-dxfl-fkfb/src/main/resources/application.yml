@@ -1,0 +1,69 @@
+sharding:
+  jdbc:
+    datasource:
+      names: m01,m01s01,m01s02,m02,m02s01 #\u5217\u51FA\u6240\u6709\u7684\u6570\u636E\u5E93 \u7136\u540E\u5BF9\u6BCF\u4E2A\u6570\u636E\u5E93\u8FDB\u884C\u5355\u72EC\u914D\u7F6E
+      m01:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://182.61.105.104:3307/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+      m01s01:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://182.61.105.104:3308/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+      m01s02:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://182.61.105.104:3309/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+      m02:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://106.15.233.201:3307/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+      m02s01:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.jdbc.Driver
+        url: jdbc:mysql://106.15.233.201:3308/Sharding-jdbc?useUnicode=true&characterEncoding=utf8&tinyInt1isBit=false&useSSL=false&serverTimezone=GMT
+        username: root
+        password: root
+        maxPoolSize: 20
+    config:
+      sharding:
+        master-slave-rules: #\u5B9A\u4E49\u6570\u636E\u5E93\u4E3B\u4ECE\u914D\u7F6E
+          ds_0:
+            master-data-source-name: m01
+            slave-data-source-names: m01s01,m01s02
+          ds_1:
+            master-data-source-name: m02
+            slave-data-source-names: m02s01
+        default-database-strategy: #\u5206\u5E93\u7B56\u7565
+          inline:
+            sharding-column: id
+            algorithm-expression: ds_$->{ id % 2 }
+        tables:
+          user:
+            actual-data-nodes: ds_$->{0..1}.user_$->{0..3}
+            table-strategy: #\u6BCF\u4E2A\u8868\u7684\u5206\u8868\u7B56\u7565
+              inline:
+                sharding-column: id  #\u5206\u8868\u4F9D\u636E\u7684\u5B57\u6BB5
+                algorithm-expression: user_$->{id % 4}
+              key-generator-column-name: id
+
+
+
+      props:
+        sql:
+          show: true
+spring:
+  main:
+    allow-bean-definition-overriding: true
